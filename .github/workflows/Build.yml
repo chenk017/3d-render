@@ -1,0 +1,51 @@
+name: Unity Cloud Build APK 🚀
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  buildForAndroid:
+    name: Build for Android 🤖
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Mengunduh source code dari repositori Github
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # 2. Membuat folder kosong yang diwajibkan oleh Unity agar tidak error saat build
+      - name: Fix Unity Project Structure
+        run: |
+          mkdir -p Assets/Scenes
+          mkdir -p ProjectSettings
+
+      # 3. Mengatur sistem cache agar proses build berikutnya jauh lebih cepat
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Android-
+
+      # 4. Merakit proyek menjadi APK Android menggunakan GameCI Builder
+      - name: Build Project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          androidAppBundle: false # Menghasilkan file langsung .apk (bukan .aab)
+
+      # 5. Menyimpan file APK hasil build agar bisa kamu download ke HP
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-Unity-APK
+          path: build/Android
+          
