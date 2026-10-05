@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "com.yasirkula.nativefilepicker": "https://github.com",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0"
+  }
+}
